@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Card, Icon, Button } from "@/components/ui/PrototypeKit";
 import { SectionHead, Tag } from "@/components/ui/PrototypePrimitives";
 import { PageScaffold } from "@/components/ui/PageScaffold";
+import { dataClient } from "@/lib/dataClient";
 
 const SCHEMA = [
   { col: 'Ticket ID', use: 'Primary key', transform: 'pass-through', target: 'id', kept: true, locked: true },
@@ -49,15 +50,46 @@ const IconButton = ({ icon, onClick, disabled }: any) => (
 export default function DataAdmin() {
   const [tab, setTab] = useState('schema');
   const [schema, setSchema] = useState(SCHEMA);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const toggleKeep = (i: number) => setSchema(s => s.map((r, idx) => idx === i ? { ...r, kept: !r.kept } : r));
+
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("batchName", file.name);
+      await dataClient.uploadFile(formData);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      alert("Upload successful!");
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Upload failed.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <PageScaffold title="Data & schema" subtitle="What the uploaded sheet contains, how each column is transformed, and what gets filtered out"
       intro={
         <div style={{ display: 'flex', gap: 8 }}>
           <Button size="sm" variant="outline" color="secondary" leftIcon="Download">Export schema</Button>
-          <Button size="sm" color="primary" leftIcon="Upload">Upload sheet</Button>
+          <input
+            type="file"
+            accept=".csv,.xlsx"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleUpload}
+          />
+          <Button size="sm" color="primary" leftIcon="Upload" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+            {isUploading ? "Uploading..." : "Upload sheet"}
+          </Button>
         </div>
       }>
       <div style={{ marginBottom: 14 }}>
