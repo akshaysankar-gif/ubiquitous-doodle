@@ -2,28 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'DM Sans';
-  src: url('/fonts/DMSans-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'DM Sans';
-  src: url('/fonts/DMSans-Medium.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'DM Sans';
-  src: url('/fonts/DMSans-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-}
+/* ==========================================================================
+   SurveySparrow Design System — Colors & Type
+   Source: surveysparrow/twigs
+   ========================================================================== */
 
 :root {
+  /* Primary (Teal) */
+  --ss-primary-50:  #E6F5F6;
+  --ss-primary-100: #B8E1E5;
+  --ss-primary-200: #8ACCD2;
+  --ss-primary-300: #5CB5BD;
+  --ss-primary-400: #2E9CA6;
+  --ss-primary-500: #00828D;  /* BRAND PRIMARY */
+  --ss-primary-600: #006B74;
+  --ss-primary-700: #00555C;
+  --ss-primary-800: #003E43;
+  --ss-primary-900: #00272A;
+
+  /* Secondary (Slate) */
+  --ss-secondary-50:  #F4F6F7;
+  --ss-secondary-100: #E2E6EB;
+  --ss-secondary-200: #C9CFD8;
+  --ss-secondary-300: #A3AEBD;
+  --ss-secondary-400: #76859A;
+  --ss-secondary-500: #64748B;
+  --ss-secondary-600: #4E596C;
+  --ss-secondary-700: #444B5A;
+  --ss-secondary-800: #3D424D;
+  --ss-secondary-900: #363A43;
+
+  /* Accent (Indigo) */
+  --ss-accent-50:  #F3F3FF;
+  --ss-accent-100: #EAE9FE;
+  --ss-accent-200: #D7D6FE;
+  --ss-accent-300: #B9B5FD;
+  --ss-accent-400: #978CF9;
+  --ss-accent-500: #7158F5;
+
+  /* Semantic Tokens */
+  --ss-bg:            #FFFFFF;
+  --ss-bg-subtle:     #F8F8F8;
+  --ss-bg-muted:      #F4F6F7;
+  --ss-fg:            #363A43;
+  --ss-fg-muted:      #4E596C;
+  --ss-fg-subtle:     #919191;
+  --ss-border:        #E2E2E2;
+  
+  /* Layout specific */
   --brand-teal: #00828D;
   --bg-main: #F8FAFB;
   --sidebar-bg: #FFFFFF;
@@ -32,46 +58,42 @@
   --text-primary: #1E293B;
   --text-secondary: #64748B;
   --text-muted: #94A3B8;
+
+  --ss-font-body: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   
-  --font-body: 'DM Sans', sans-serif;
+  /* Radius */
+  --ss-radius-sm: 0.25rem;
+  --ss-radius-md: 0.375rem;
+  --ss-radius-lg: 0.5rem;
+  --ss-radius-pill: 9999px;
 }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--bg-main);
-  color: var(--text-primary);
+  font-family: var(--ss-font-body);
+  background-color: var(--ss-bg-subtle);
+  color: var(--ss-fg);
   -webkit-font-smoothing: antialiased;
+  margin: 0;
+  height: 100%;
 }
 
-/* Structural resets */
-* {
-  box-sizing: border-box;
-}
+/* Utility classes from prototype */
+.scroll-area { overflow: auto; }
+.scroll-area::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--ss-neutral-200, #E2E2E2); border-radius: 8px; }
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+.sent-calm       { background:#D7F0D7; color:#1F5E2A; }
+.sent-annoyed    { background:#FDE2B8; color:#7A4A0F; }
+.sent-frustrated { background:#FDD8CE; color:#9B2C0F; }
+.sent-furious    { background:#F4C2C2; color:#7A1F1F; }
+
+.row-hover:hover { background: var(--ss-bg-subtle); }
+
+.divider { height:1px; background: var(--ss-border); margin: 16px 0; }
 
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
   font-weight: 700;
-}
-
-p {
-  margin: 0;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
 }
