@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Support ticket analyser
-=======
 # Ticket Intelligence - API & Analysis Layer
 
 ## Overview
@@ -54,4 +51,3 @@ Ticket Intelligence is a backend system built with Next.js 14 and Prisma to anal
 - `GET /api/tickets/[id]` - Ticket detail.
 - `PATCH /api/tickets/[id]` - Edit ticket fields.
 - `GET /api/stats` - Aggregated statistics.
->>>>>>> a368d65 (Initial commit)
