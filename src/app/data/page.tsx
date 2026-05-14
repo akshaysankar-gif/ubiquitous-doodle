@@ -81,13 +81,14 @@ export default function DataAdmin() {
         <div style={{ display: 'flex', gap: 8 }}>
           <Button size="sm" variant="outline" color="secondary" leftIcon="Download">Export schema</Button>
           <input
+            id="hidden-file-input"
             type="file"
             accept=".csv,.xlsx"
             ref={fileInputRef}
-            style={{ display: "none" }}
+            style={{ position: 'absolute', width: 0, height: 0, opacity: 0, overflow: 'hidden' }}
             onChange={handleUpload}
           />
-          <Button size="sm" color="primary" leftIcon="Upload" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+          <Button size="sm" color="primary" leftIcon="Upload" onClick={(e: any) => { e.preventDefault(); document.getElementById('hidden-file-input')?.click(); }} disabled={isUploading}>
             {isUploading ? "Uploading..." : "Upload sheet"}
           </Button>
         </div>
