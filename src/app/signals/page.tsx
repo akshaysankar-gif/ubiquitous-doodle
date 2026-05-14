@@ -3,7 +3,8 @@
 import React, { useMemo } from "react";
 import { useSupport } from "@/lib/context";
 import { mockData } from "@/lib/mockData";
-import { Card, Tag, Icon } from "@/components/ui/PrototypeKit";
+import { Card, Icon } from "@/components/ui/PrototypeKit";
+import { Tag } from "@/components/ui/PrototypePrimitives";
 import { PageScaffold } from "@/components/ui/PageScaffold";
 
 export default function SignalsPage() {

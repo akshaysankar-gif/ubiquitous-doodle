@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, Icon, Tag, Button } from "@/components/ui/PrototypeKit";
-import { SectionHead } from "@/components/ui/PrototypePrimitives";
+import { Card, Icon, Button } from "@/components/ui/PrototypeKit";
+import { SectionHead, Tag } from "@/components/ui/PrototypePrimitives";
 import { PageScaffold } from "@/components/ui/PageScaffold";
 
 const SCHEMA = [

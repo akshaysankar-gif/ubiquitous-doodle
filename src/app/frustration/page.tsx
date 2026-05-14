@@ -3,8 +3,8 @@
 import React, { useMemo } from "react";
 import { useSupport } from "@/lib/context";
 import { mockData } from "@/lib/mockData";
-import { Card, Tag } from "@/components/ui/PrototypeKit";
-import { SectionHead, SentimentBar, SentimentChip } from "@/components/ui/PrototypePrimitives";
+import { Card } from "@/components/ui/PrototypeKit";
+import { SectionHead, SentimentBar, SentimentChip, Tag } from "@/components/ui/PrototypePrimitives";
 import { PageScaffold } from "@/components/ui/PageScaffold";
 
 function frustToColor(f: number) {

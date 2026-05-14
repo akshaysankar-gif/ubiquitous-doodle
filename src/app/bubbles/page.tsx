@@ -3,8 +3,8 @@
 import React, { useMemo, useState } from "react";
 import { useSupport } from "@/lib/context";
 import { mockData, MONTHS } from "@/lib/mockData";
-import { Card, Tag, Button } from "@/components/ui/PrototypeKit";
-import { SectionHead, SentimentBar } from "@/components/ui/PrototypePrimitives";
+import { Card, Button } from "@/components/ui/PrototypeKit";
+import { SectionHead, SentimentBar, Tag } from "@/components/ui/PrototypePrimitives";
 import { BubbleChart, BubbleLegend, ENCODINGS } from "@/components/ui/BubbleChart";
 
 const SelectablePill = ({ children, size = 'md', variant = 'outline', state = 'regular', onClick }: any) => {
