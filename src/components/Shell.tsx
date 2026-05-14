@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSupport } from "@/lib/context";
-import Icon from "@/components/ui/Icon";
-import Pill from "@/components/ui/Pill";
+import { Icon, Avatar, Pill, Button } from "./ui/PrototypeKit";
 
 const NAV_SECTIONS = [
   {
@@ -31,14 +30,6 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    label: 'Future modules',
-    items: [
-      { id: 'aivshuman', icon: 'Split',             label: 'AI vs Human', href: '/ai-vs-human', pill: { color: 'purple', text: 'Preview' } },
-      { id: 'coaching',  icon: 'GraduationCap',    label: 'Coaching', href: '/coaching', pill: { color: 'purple', text: 'Preview' } },
-      { id: 'upsell',    icon: 'Sparkles',          label: 'Upsell signals', href: '/upsell', pill: { color: 'purple', text: 'Preview' } },
-    ],
-  },
-  {
     label: 'Admin',
     items: [
       { id: 'data',     icon: 'Database',          label: 'Data & schema', href: '/data' },
@@ -47,83 +38,61 @@ const NAV_SECTIONS = [
   },
 ];
 
-const SidebarItem = ({ item, collapsed }: { item: any; collapsed: boolean }) => {
-  const pathname = usePathname();
-  const isActive = pathname === item.href;
-  
+const AppSidebar = ({ active, collapsed }: any) => {
   return (
-    <Link
-      href={item.href}
-      title={collapsed ? item.label : undefined}
-      className={`flex items-center gap-[10px] w-full transition-all duration-150 rounded-lg ${
-        collapsed ? 'justify-center py-2' : 'px-[10px] py-[7px] justify-start'
-      } ${
-        isActive 
-          ? 'bg-[var(--ss-primary-50)] text-[var(--ss-primary-700)] font-semibold' 
-          : 'text-[var(--ss-secondary-700)] font-medium hover:bg-black/5'
-      }`}
-      style={{ fontSize: '12.5px' }}
-    >
-      <Icon name={item.icon} size={16} />
-      {!collapsed && (
-        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
-          {item.label}
-        </span>
-      )}
-      {!collapsed && item.pill && (
-        <Pill color={item.pill.color as any} size="sm">{item.pill.text}</Pill>
-      )}
-    </Link>
-  );
-};
-
-const AppSidebar = ({ collapsed }: { collapsed: boolean }) => {
-  return (
-    <aside 
-      className="flex flex-col h-full bg-white border-r border-[var(--ss-border)] transition-[width] duration-200"
-      style={{ width: collapsed ? '56px' : '232px', flexShrink: 0 }}
-    >
-      <div className={`flex items-center gap-2 ${collapsed ? 'justify-center py-4 px-0' : 'px-[18px] py-4'}`}>
-        <div className="w-7 h-7 bg-[var(--ss-primary-500)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
-          <Icon name="Activity" size={16} />
-        </div>
+    <aside style={{
+      width: collapsed ? 56 : 232, flexShrink: 0, height: '100%',
+      background: '#fff', borderRight: '1px solid var(--ss-border)',
+      display: 'flex', flexDirection: 'column', padding: collapsed ? '14px 6px' : '14px 12px',
+      transition: 'width .2s',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: collapsed ? '4px 0 12px' : '4px 6px 14px', justifyContent: collapsed ? 'center' : 'flex-start' }}>
+        <img src="/assets/surveysparrow-mark.svg" width={26} height={26} alt="SurveySparrow" />
         {!collapsed && (
-          <div className="leading-[1.1]">
-            <div className="text-[13px] font-bold text-[var(--ss-fg)] tracking-[-0.01em]">Ticket Explorer</div>
-            <div className="text-[10px] text-[var(--ss-fg-muted)]">Support · Post-mortem</div>
+          <div style={{ lineHeight: 1.1 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--ss-fg)', letterSpacing: '-0.01em' }}>Ticket Explorer</div>
+            <div style={{ fontSize: 10, color: 'var(--ss-fg-muted)' }}>Support · Post-mortem</div>
           </div>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto scroll-area px-[6px] py-2 space-y-4">
-        {NAV_SECTIONS.map((sec) => (
-          <div key={sec.label} className="space-y-1">
-            {!collapsed && (sec.label !== 'Analyse') && (
-              <div className="text-[9px] font-bold tracking-[0.08em] uppercase text-[var(--ss-fg-muted)] px-[10px] py-[4px]">
-                {sec.label}
-              </div>
+      <div className="scroll-area" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14, paddingRight: 2 }}>
+        {NAV_SECTIONS.map(sec => (
+          <div key={sec.label}>
+            {!collapsed && (
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ss-fg-muted)', padding: '4px 10px 6px' }}>{sec.label}</div>
             )}
-            {collapsed && (sec.label !== 'Analyse') && (
-              <div className="h-px bg-[var(--ss-border)] mx-1.5 my-2" />
-            )}
-            <nav className="flex flex-col gap-[2px]">
-              {sec.items.map((it) => (
-                <SidebarItem key={it.id} item={it} collapsed={collapsed} />
-              ))}
+            {collapsed && <div style={{ height: 1, background: 'var(--ss-border)', margin: '8px 6px' }} />}
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {sec.items.map(it => {
+                const on = active === it.href;
+                return (
+                  <Link key={it.id} href={it.href} style={{
+                    display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                    padding: collapsed ? '8px 0' : '7px 10px',
+                    justifyContent: collapsed ? 'center' : 'flex-start',
+                    border: 0, borderRadius: 8, cursor: 'pointer',
+                    background: on ? 'var(--ss-primary-50)' : 'transparent',
+                    color: on ? 'var(--ss-primary-700)' : 'var(--ss-secondary-700)',
+                    fontSize: 12.5, fontWeight: on ? 600 : 500, textDecoration: 'none',
+                  }}>
+                    <Icon name={it.icon} size={16} />
+                    {!collapsed && <span>{it.label}</span>}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         ))}
       </div>
 
-      <div className="border-t border-[var(--ss-border)] mt-2 p-[10px]">
-        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center' : 'px-1.5'}`}>
-          <div className="w-8 h-8 rounded-full bg-[var(--ss-secondary-100)] flex items-center justify-center text-[var(--ss-fg)] font-bold text-xs">
-            AS
-          </div>
+      <div style={{ borderTop: '1px solid var(--ss-border)', marginTop: 8, paddingTop: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: collapsed ? '0' : '4px 6px' }}>
+          <Avatar initials="AS" size="sm" />
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="text-[12px] font-semibold text-[var(--ss-fg)] truncate">Akshay S.</div>
-              <div className="text-[10px] text-[var(--ss-fg-muted)] truncate">Product Owner</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ss-fg)' }}>Akshay S.</div>
+              <div style={{ fontSize: 10, color: 'var(--ss-fg-muted)' }}>Product Owner</div>
             </div>
           )}
         </div>
@@ -132,71 +101,51 @@ const AppSidebar = ({ collapsed }: { collapsed: boolean }) => {
   );
 };
 
-const AppTopbar = ({ onToggleSidebar, collapsed }: { onToggleSidebar: () => void; collapsed: boolean }) => {
+const AppTopbar = ({ title, onToggleSidebar }: any) => {
   const { month, setMonth } = useSupport();
-  const pathname = usePathname();
-  
-  // Find current page label
-  let title = "Dashboard";
-  NAV_SECTIONS.forEach(sec => {
-    const it = sec.items.find(i => i.href === pathname);
-    if (it) title = it.label;
-  });
-
   return (
-    <header className="h-[60px] border-b border-[var(--ss-border)] bg-white flex items-center px-[22px] gap-3 flex-shrink-0">
-      <button 
-        onClick={onToggleSidebar}
-        className="p-1.5 rounded-md hover:bg-black/5 text-[var(--ss-secondary-700)] transition-colors"
-      >
-        <Icon name={collapsed ? "PanelLeftOpen" : "PanelLeft"} size={18} />
+    <header style={{
+      height: 60, borderBottom: '1px solid var(--ss-border)', background: '#fff',
+      display: 'flex', alignItems: 'center', padding: '0 22px', gap: 12, flexShrink: 0
+    }}>
+      <button onClick={onToggleSidebar} style={{ border: 0, background: 'transparent', cursor: 'pointer' }}>
+        <Icon name="PanelLeft" size={18} color="var(--ss-fg-muted)" />
       </button>
-      
-      <div className="flex-1 min-w-0">
-        <div className="text-[15.5px] font-bold text-[var(--ss-fg)] tracking-[-0.01em]">{title}</div>
+      <div style={{ flex: 1 }}>
+        <div style={{ fontSize: 15.5, fontWeight: 700, color: 'var(--ss-fg)', letterSpacing: '-0.01em' }}>{title}</div>
       </div>
 
-      {/* Product Filter */}
-      <div className="w-40 h-8 px-2 border border-[var(--ss-border)] rounded-lg bg-white flex items-center">
-        <select className="w-full text-xs font-semibold text-[var(--ss-fg)] outline-none bg-transparent cursor-pointer">
-          <option>All products</option>
-          <option>SurveySparrow</option>
-          <option>ThriveSparrow</option>
-          <option>SparrowDesk</option>
-        </select>
-      </div>
+      {/* Product filter */}
+      <select style={{ width: 140, height: 32, borderRadius: 8, border: '1px solid var(--ss-border)', padding: '0 8px', fontSize: 12 }}>
+        <option>All products</option>
+      </select>
 
-      {/* Month Picker */}
-      <div className="flex items-center gap-1.5 px-2 h-8 border border-[var(--ss-border)] rounded-lg bg-white">
-        <Icon name="Calendar" size={14} className="text-[var(--ss-fg-muted)]" />
-        <select 
-          value={month} 
-          onChange={(e) => setMonth(e.target.value)}
-          className="text-xs font-semibold text-[var(--ss-fg)] outline-none bg-transparent cursor-pointer"
-        >
-          <option value="2024-05">May 2024</option>
-          <option value="2024-04">Apr 2024</option>
-          <option value="2024-03">Mar 2024</option>
+      {/* Month picker */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px', borderRadius: 8, border: '1px solid var(--ss-border)' }}>
+        <Icon name="Calendar" size={14} color="var(--ss-fg-muted)" />
+        <select value={month} onChange={(e) => setMonth(e.target.value)} style={{ border: 0, fontSize: 13, fontWeight: 600, cursor: 'pointer', outline: 'none' }}>
+          <option value="2026-04">Apr 2026</option>
+          <option value="2026-03">Mar 2026</option>
         </select>
       </div>
     </header>
   );
 };
 
-export const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { tweaks, updateTweaks } = useSupport();
-  const collapsed = tweaks.sidebarCollapsed;
-
-  const toggleSidebar = () => {
-    updateTweaks({ sidebarCollapsed: !collapsed });
-  };
+export const Shell = ({ children }: { children: React.ReactNode }) => {
+  const pathname = usePathname();
+  const [collapsed, setCollapsed] = React.useState(false);
+  
+  // Find title
+  let title = "Dashboard";
+  NAV_SECTIONS.forEach(s => s.items.forEach(i => { if (i.href === pathname) title = i.label; }));
 
   return (
-    <div className="flex h-screen overflow-hidden ss-type">
-      <AppSidebar collapsed={collapsed} />
-      <div className="flex flex-1 flex-col overflow-hidden bg-[var(--ss-bg-subtle)]">
-        <AppTopbar onToggleSidebar={toggleSidebar} collapsed={collapsed} />
-        <main className="flex-1 overflow-y-auto p-6">
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }} className="ss-type">
+      <AppSidebar active={pathname} collapsed={collapsed} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: 'var(--ss-neutral-50)' }}>
+        <AppTopbar title={title} onToggleSidebar={() => setCollapsed(!collapsed)} />
+        <main className="scroll-area" style={{ flex: 1, padding: 24 }}>
           {children}
         </main>
       </div>
