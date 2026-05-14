@@ -26,7 +26,7 @@ const KpiCard: React.FC<KpiCardProps> = ({ icon, label, value, delta, deltaFmt =
     <Card className="flex flex-col p-4">
       <div className="flex items-center justify-between mb-3">
         <div className={`p-2 rounded-lg ${accentColors[accent] || accentColors.primary}`}>
-          <Icon name={icon} size={18} />
+          <Icon name={icon as any} size={18} />
         </div>
         {delta !== undefined && (
           <Delta value={delta} fmt={deltaFmt} polarity={polarity} size="sm" />
