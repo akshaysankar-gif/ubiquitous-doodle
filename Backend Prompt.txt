@@ -1,0 +1,290 @@
+You are a senior backend engineer. Build a complete, production-ready Next.js 14 API + database layer for a support ticket analysis tool called "Ticket Intelligence". No frontend, no UI components. API routes, database, file parsing, and GPT-4o analysis pipeline only.
+
+---
+
+## STACK
+
+- Next.js 14 App Router (API routes only)
+- TypeScript strict mode
+- Prisma ORM + Supabase PostgreSQL
+- OpenAI GPT-4o via openai npm package
+- papaparse for CSV parsing
+- xlsx for Excel parsing
+- NextAuth.js credentials provider (email + bcrypt)
+- Hosting target: Vercel + Supabase
+
+Generate a .env.example with all required keys.
+
+---
+
+## DATABASE SCHEMA (prisma/schema.prisma)
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         Role          @default(VIEWER)
+  createdAt    DateTime      @default(now())
+  batches      TicketBatch[]
+}
+
+enum Role { ADMIN VIEWER }
+
+model TicketBatch {
+  id             String    @id @default(cuid())
+  name           String
+  uploadedAt     DateTime  @default(now())
+  uploadedById   String
+  uploadedBy     User      @relation(fields:[uploadedById], references:[id])
+  rowCount       Int       @default(0)
+  processedCount Int       @default(0)
+  errorCount     Int       @default(0)
+  status         BatchStatus @default(PENDING)
+  tickets        Ticket[]
+}
+
+enum BatchStatus { PENDING PROCESSING DONE ERROR }
+
+model Ticket {
+  id              String   @id   // Ticket ID from CSV
+  batchId         String
+  batch           TicketBatch @relation(fields:[batchId], references:[id])
+
+  // Raw fields
+  status          String
+  assignee        String
+  subject         String
+  brand           String
+  source          String
+  channel         String
+  team            String
+  issueType       String
+  moduleL1        String?
+  areaL2          String?
+  subareaL3       String?
+  createdAt       DateTime
+  createdDate     String        // YYYY-MM-DD
+  createdMonth    String        // YYYY-MM
+  hourOfDay       Int
+  dayOfWeek       Int
+  previousStatus  String?
+  messagesRaw     String
+
+  // Derived flags
+  isArchived      Boolean  @default(false)
+  isAIHandled     Boolean  @default(false)
+  isReopened      Boolean  @default(false)
+  isChat          Boolean  @default(false)
+
+  // Analysis status
+  analysisStatus  AnalysisStatus @default(PENDING)
+
+  // GPT-4o classification output
+  primaryIntent   String?
+  subIntent       String?
+  severity        String?
+  businessRisk    String?
+  productArea     String?
+  rootCauseType   String?
+  frustrationLevel String?
+  automationLevel String?
+  supportEffort   String?
+  systemicSignal  String?
+  customerAsk     String?
+
+  // Quality scores
+  scoreResolutionQuality    Float?
+  scoreCommunicationClarity Float?
+  scoreEscalationJudgment   Float?
+  scoreCategorizationAccuracy Float?
+  scoreTotal                Float?
+  scoreFlags                String?
+}
+
+enum AnalysisStatus { PENDING DONE SKIPPED ERROR }
+
+---
+
+## PARSING RULES (lib/parser.ts)
+
+Brand splitting:
+- "SurveySparrow" or "SurveySparrow Website" → brand: SurveySparrow, source: Website
+- "ThriveSparrow" or "ThriveSparrow Website" → brand: ThriveSparrow, source: Website
+- "SparrowDesk" → brand: SparrowDesk, source: Website
+- "SurveySparrow Product" → brand: SurveySparrow, source: Product
+- "ThriveSparrow Product" → brand: ThriveSparrow, source: Product
+- "Unknown" or "SparrowGenie" → skip row entirely (return null)
+
+Team field: values may be wrapped in literal single quotes — strip them. Use .includes("Technical Support") not exact match.
+
+Channel: "Mail" → "Ticket", all others as-is.
+
+Archive: isArchived = true if status === "Archived" OR previousStatus === "Archived". These get analysisStatus: SKIPPED.
+
+Category: split on "::" → moduleL1, areaL2, subareaL3.
+
+Created at: parse ISO string. Store full DateTime, YYYY-MM-DD date string, YYYY-MM month string, hourOfDay (0-23 UTC), dayOfWeek (0=Sunday).
+
+isAIHandled: assignee === "Zoona AI"
+isChat: channel.toLowerCase() includes "chat"
+isReopened: previousStatus === "Open" && status === "Resolved" (or similar reopen signal)
+
+Analysis eligibility: team includes "Technical Support" AND isArchived === false AND messagesRaw is not empty. Others → analysisStatus: SKIPPED.
+
+---
+
+## GPT-4O ANALYSIS (lib/analyzer.ts)
+
+Two sequential calls per eligible ticket using gpt-4o with response_format: { type: "json_object" }.
+
+CALL 1 — Classification:
+System: "You are a support quality analyst for a SaaS company. Analyze this support ticket (subject + conversation) and return a JSON object with exactly these fields. Be concise."
+
+Input: JSON.stringify({ subject, messages: messagesRaw })
+
+Expected JSON output:
+{
+  "primaryIntent": "string — main reason user reached out",
+  "subIntent": "string — granular breakdown",
+  "severity": "Low | Medium | High | Critical",
+  "businessRisk": "Low | Medium | High",
+  "productArea": "string",
+  "rootCauseType": "User Error | Bug | Missing Feature | Configuration | Documentation Gap | Integration Issue | Other",
+  "frustrationLevel": "Calm | Mild | Frustrated | Very Frustrated | Angry",
+  "automationLevel": "Fully Automatable | Partially Automatable | Requires Human",
+  "supportEffort": "Low | Medium | High",
+  "systemicSignal": "Isolated | Possible Pattern | Confirmed Pattern",
+  "customerAsk": "string — one line"
+}
+
+CALL 2 — Quality scoring:
+System: "You are a support quality assessor. Score this support ticket conversation on 4 dimensions. Return only JSON. Do NOT score pacing — no timestamps available."
+
+Input: same as call 1
+
+Expected JSON output:
+{
+  "scoreResolutionQuality": <1-10>,
+  "scoreCommunicationClarity": <1-10>,
+  "scoreEscalationJudgment": <1-10>,
+  "scoreCategorizationAccuracy": <1-10>,
+  "scoreFlags": "comma-separated issues or empty string"
+}
+
+Compute scoreTotal as average of the 4 scores.
+
+Batching: process 10 tickets concurrently (Promise.allSettled), 300ms delay between batches. On any error: mark analysisStatus ERROR, log, continue. Never abort batch.
+
+Resumable: before processing a ticket, check analysisStatus !== DONE — skip if already done.
+
+---
+
+## API ROUTES
+
+POST /api/auth/[...nextauth]
+- NextAuth credentials provider
+- Email + bcrypt password verification
+- Session includes user id, name, role
+
+POST /api/upload
+- Accepts multipart/form-data with fields: file (CSV or XLSX), batchName (string)
+- Parse file using papaparse or xlsx
+- Apply all parsing rules
+- Insert TicketBatch + all Ticket rows in a Prisma transaction
+- Return { batchId, rowCount, skippedCount, eligibleCount }
+
+POST /api/analyze/[batchId]
+- Trigger analysis for all PENDING/ERROR tickets in the batch
+- Run in background (do not await full completion — return { started: true, batchId } immediately)
+- Update batch status to PROCESSING
+- Process tickets using lib/analyzer.ts
+- Update batch status to DONE or ERROR when complete
+- Idempotent — safe to call multiple times
+
+GET /api/batches
+- List all batches ordered by uploadedAt desc
+- Include rowCount, processedCount, errorCount, status
+
+GET /api/batches/[batchId]
+- Single batch detail + per-status ticket counts
+
+GET /api/tickets
+- Paginated (page, pageSize default 50)
+- Filters: batchId, month (YYYY-MM), brand, team, severity, frustrationLevel, assignee, isAIHandled, analysisStatus, channel
+- Returns tickets array + total count
+
+GET /api/tickets/[id]
+- Full ticket detail including all analysis fields
+
+PATCH /api/tickets/[id]
+- Allow editing: moduleL1, areaL2, subareaL3, primaryIntent, analysisStatus
+- Used for manual corrections
+
+GET /api/stats
+- Query params: month (YYYY-MM), brand, channel
+- Returns aggregated stats:
+  {
+    totalTickets, eligibleTickets, processedTickets,
+    aiHandledCount, aiHandledPct,
+    avgScoreTotal,
+    automationRate (pct fully automatable),
+    highFrustrationRate (pct Very Frustrated + Angry),
+    byDayOfWeek: [{day, count}],
+    byHourOfDay: [{hour, count}],
+    byPrimaryIntent: [{intent, count}],
+    bySeverity: [{severity, count}],
+    byFrustrationLevel: [{level, count}],
+    byRootCauseType: [{type, count}],
+    bySystemicSignal: [{signal, count}],
+    byBrand: [{brand, count}],
+    byChannel: [{channel, count}],
+    byModule: [{module, count}],
+    monthOverMonth: [{month, count, avgScore}]
+  }
+
+---
+
+## CONSTANTS (lib/constants.ts)
+
+export const MANAGERS: string[] = [];
+// Wire isManager logic here for future use — for now empty.
+// When populated, agents in this list are excluded from coaching metrics.
+
+export const AI_AGENT_ASSIGNEE = "Zoona AI";
+
+export const ELIGIBLE_TEAM = "Technical Support";
+
+export const SKIP_BRANDS = ["Unknown", "SparrowGenie"];
+
+---
+
+## SEED SCRIPT (prisma/seed.ts)
+
+Create one admin user:
+- email: admin@surveysparrow.com
+- password: changeme123 (bcrypt hashed)
+- name: Admin
+- role: ADMIN
+
+---
+
+## README.md
+
+Include:
+1. Local setup (clone, .env.local, prisma db push, seed, npm run dev)
+2. Vercel + Supabase deployment steps
+3. How to upload a ticket CSV and trigger analysis
+4. API endpoint reference
+
+---
+
+## DELIVERABLES
+
+Every file written in full. After writing all files:
+1. Run npm install
+2. Run npx prisma generate
+3. Run npm run build
+4. Fix all TypeScript and build errors
+
+Done when build passes with zero errors.

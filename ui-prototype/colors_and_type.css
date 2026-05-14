@@ -1,0 +1,318 @@
+/* ==========================================================================
+   SurveySparrow Design System — Colors & Type
+   Source: surveysparrow/twigs (packages/react-components/src/stitches.config.ts)
+   ========================================================================== */
+
+/* ----------  FONT FACES  ---------- */
+@font-face { font-family: 'DM Sans'; font-weight: 100; font-style: normal;
+  src: url('fonts/DMSans-Thin.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 300; font-style: normal;
+  src: url('fonts/DMSans-Light.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 400; font-style: normal;
+  src: url('fonts/DMSans-Regular.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 400; font-style: italic;
+  src: url('fonts/DMSans-Italic.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 500; font-style: normal;
+  src: url('fonts/DMSans-Medium.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 600; font-style: normal;
+  src: url('fonts/DMSans-SemiBold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 700; font-style: normal;
+  src: url('fonts/DMSans-Bold.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family: 'DM Sans'; font-weight: 800; font-style: normal;
+  src: url('fonts/DMSans-ExtraBold.ttf') format('truetype'); font-display: swap; }
+
+:root {
+  /* ------------------------------------------------------------------
+     CORE PALETTE — full scales from twigs stitches.config.ts
+     ------------------------------------------------------------------ */
+
+  /* Primary (Teal — the SurveySparrow brand blue-green) */
+  --ss-primary-50:  #E6F5F6;
+  --ss-primary-100: #B8E1E5;
+  --ss-primary-200: #8ACCD2;
+  --ss-primary-300: #5CB5BD;
+  --ss-primary-400: #2E9CA6;
+  --ss-primary-500: #00828D;  /* BRAND PRIMARY */
+  --ss-primary-600: #006B74;
+  --ss-primary-700: #00555C;
+  --ss-primary-800: #003E43;
+  --ss-primary-900: #00272A;
+
+  /* Secondary (Slate — core text/UI) */
+  --ss-secondary-50:  #F4F6F7;
+  --ss-secondary-100: #E2E6EB;
+  --ss-secondary-200: #C9CFD8;
+  --ss-secondary-300: #A3AEBD;
+  --ss-secondary-400: #76859A;
+  --ss-secondary-500: #64748B;
+  --ss-secondary-600: #4E596C;
+  --ss-secondary-700: #444B5A;
+  --ss-secondary-800: #3D424D;
+  --ss-secondary-900: #363A43;  /* heading text */
+
+  /* Accent (Indigo/Violet — feature highlights) */
+  --ss-accent-50:  #F3F3FF;
+  --ss-accent-100: #EAE9FE;
+  --ss-accent-200: #D7D6FE;
+  --ss-accent-300: #B9B5FD;
+  --ss-accent-400: #978CF9;
+  --ss-accent-500: #7158F5;
+  --ss-accent-600: #623BEC;
+  --ss-accent-700: #5329D8;
+  --ss-accent-800: #4622B5;
+  --ss-accent-900: #3B1E94;
+
+  /* Warning (Amber) */
+  --ss-warning-50:  #FFF6EF;
+  --ss-warning-100: #FEEAC7;
+  --ss-warning-200: #FDD28A;
+  --ss-warning-300: #FCBD4F;
+  --ss-warning-400: #FBAB24;
+  --ss-warning-500: #F59E0B;
+  --ss-warning-600: #DB8D06;
+  --ss-warning-700: #B47409;
+  --ss-warning-800: #92610E;
+  --ss-warning-900: #78510F;
+
+  /* Highlight (Yellow) */
+  --ss-highlight-50:  #FFFCDA;
+  --ss-highlight-100: #FFF7AD;
+  --ss-highlight-200: #FFF27D;
+  --ss-highlight-300: #FFED4B;
+  --ss-highlight-400: #FFE81A;
+  --ss-highlight-500: #E6CF00;
+  --ss-highlight-600: #B3A100;
+  --ss-highlight-700: #807300;
+  --ss-highlight-800: #786B03;
+  --ss-highlight-900: #6A5F00;
+
+  /* Positive (Green) */
+  --ss-positive-50:  #F4FAF1;
+  --ss-positive-100: #E8F4E3;
+  --ss-positive-200: #D4E8CA;
+  --ss-positive-300: #A8D291;
+  --ss-positive-400: #67B034;
+  --ss-positive-500: #5EA130;
+  --ss-positive-600: #55932A;
+  --ss-positive-700: #4C8425;
+  --ss-positive-800: #437720;
+  --ss-positive-900: #3C691C;
+
+  /* Negative (Coral/Red) */
+  --ss-negative-50:  #FFF6F3;
+  --ss-negative-100: #FDEDE8;
+  --ss-negative-200: #FFDAD0;
+  --ss-negative-300: #FFB4A1;
+  --ss-negative-400: #FA7659;
+  --ss-negative-500: #F65633;
+  --ss-negative-600: #E75030;
+  --ss-negative-700: #D14729;
+  --ss-negative-800: #BC4024;
+  --ss-negative-900: #A9371E;
+
+  /* Neutrals (grey) */
+  --ss-neutral-50:  #F8F8F8;
+  --ss-neutral-100: #F1F1F1;
+  --ss-neutral-200: #E2E2E2;
+  --ss-neutral-300: #C6C6C6;
+  --ss-neutral-400: #9E9E9E;
+  --ss-neutral-500: #919191;
+  --ss-neutral-600: #848484;
+  --ss-neutral-700: #757575;
+  --ss-neutral-800: #575757;
+  --ss-neutral-900: #111111;
+
+  /* Alpha black / white — for overlays and ghost states */
+  --ss-black-50:  #0000000A;
+  --ss-black-100: #00000014;
+  --ss-black-200: #0000001A;
+  --ss-black-300: #00000026;
+  --ss-black-400: #00000033;
+  --ss-black-500: #0000004D;
+  --ss-black-600: #00000080;
+  --ss-black-700: #000000B2;
+  --ss-black-800: #000000CC;
+  --ss-black-900: #000000;
+
+  --ss-white-50:  #FFFFFF0D;
+  --ss-white-100: #FFFFFF14;
+  --ss-white-200: #FFFFFF1A;
+  --ss-white-300: #FFFFFF26;
+  --ss-white-400: #FFFFFF33;
+  --ss-white-500: #FFFFFF4D;
+  --ss-white-600: #FFFFFF80;
+  --ss-white-700: #FFFFFFB2;
+  --ss-white-800: #FFFFFFCC;
+  --ss-white-900: #FFFFFF;
+
+  /* ------------------------------------------------------------------
+     SEMANTIC TOKENS — what you actually reach for when designing
+     ------------------------------------------------------------------ */
+  --ss-bg:            var(--ss-white-900);
+  --ss-bg-subtle:     var(--ss-neutral-50);
+  --ss-bg-muted:      var(--ss-secondary-50);
+  --ss-bg-inverse:    var(--ss-secondary-900);
+
+  --ss-fg:            var(--ss-secondary-900);    /* body text */
+  --ss-fg-muted:      var(--ss-secondary-600);    /* secondary text */
+  --ss-fg-subtle:     var(--ss-neutral-500);      /* placeholder / captions */
+  --ss-fg-inverse:    var(--ss-white-900);
+  --ss-fg-brand:      var(--ss-primary-500);
+  --ss-fg-accent:     var(--ss-accent-500);
+
+  --ss-border:        var(--ss-neutral-200);
+  --ss-border-strong: var(--ss-neutral-400);
+  --ss-border-hover:  var(--ss-neutral-700);       /* input/checkbox/radio hover outline */
+  --ss-border-focus:  var(--ss-primary-200);       /* focus ring colour */
+  --ss-border-error:  var(--ss-negative-500);      /* error-state outline */
+
+  --ss-disabled-opacity: 0.4;                       /* uniform disabled treatment */
+
+  --ss-link:          var(--ss-primary-500);
+  --ss-link-hover:    var(--ss-primary-600);
+
+  /* ------------------------------------------------------------------
+     TYPOGRAPHY
+     ------------------------------------------------------------------ */
+  --ss-font-body:    'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ss-font-heading: 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ss-font-mono:    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Font sizes — mirrors twigs $fontSizes scale */
+  --ss-fs-xxs:  0.625rem;   /* 10 */
+  --ss-fs-xs:   0.75rem;    /* 12 */
+  --ss-fs-sm:   0.875rem;   /* 14 */
+  --ss-fs-md:   1rem;       /* 16 */
+  --ss-fs-lg:   1.1875rem;  /* 19 */
+  --ss-fs-xl:   1.4375rem;  /* 23 */
+  --ss-fs-2xl:  1.75rem;    /* 28 */
+  --ss-fs-3xl:  2.0625rem;  /* 33 */
+  --ss-fs-4xl:  2.5rem;     /* 40 */
+  --ss-fs-5xl:  3rem;       /* 48 */
+
+  /* Line heights — mirrors twigs $lineHeights */
+  --ss-lh-xxs:  0.75rem;
+  --ss-lh-xs:   1rem;
+  --ss-lh-sm:   1.25rem;
+  --ss-lh-md:   1.5rem;
+  --ss-lh-lg:   1.75rem;
+  --ss-lh-xl:   2rem;
+  --ss-lh-2xl:  2.5rem;
+  --ss-lh-3xl:  3rem;
+  --ss-lh-4xl:  4rem;
+
+  /* Weights */
+  --ss-fw-thin:       100;
+  --ss-fw-light:      300;
+  --ss-fw-regular:    400;
+  --ss-fw-medium:     500;
+  --ss-fw-semibold:   600;
+  --ss-fw-bold:       700;
+  --ss-fw-extrabold:  800;
+
+  /* ------------------------------------------------------------------
+     RADII — from twigs $radii
+     ------------------------------------------------------------------ */
+  --ss-radius-none: 0;
+  --ss-radius-xs:   0.125rem;  /* 2  */
+  --ss-radius-sm:   0.25rem;   /* 4  */
+  --ss-radius-md:   0.375rem;  /* 6  */
+  --ss-radius-lg:   0.5rem;    /* 8   — default button / input */
+  --ss-radius-xl:   0.75rem;   /* 12 */
+  --ss-radius-2xl:  1rem;      /* 16 */
+  --ss-radius-3xl:  1.25rem;   /* 20 */
+  --ss-radius-4xl:  1.5rem;    /* 24 */
+  --ss-radius-round: 50%;
+  --ss-radius-pill:  9999px;
+
+  /* ------------------------------------------------------------------
+     SPACING — 0.125rem step scale (1..50)
+     ------------------------------------------------------------------ */
+  --ss-space-1:  0.125rem;
+  --ss-space-2:  0.25rem;
+  --ss-space-3:  0.375rem;
+  --ss-space-4:  0.5rem;
+  --ss-space-5:  0.625rem;
+  --ss-space-6:  0.75rem;
+  --ss-space-7:  0.875rem;
+  --ss-space-8:  1rem;
+  --ss-space-10: 1.25rem;
+  --ss-space-12: 1.5rem;
+  --ss-space-14: 1.75rem;
+  --ss-space-16: 2rem;
+  --ss-space-20: 2.5rem;
+  --ss-space-24: 3rem;
+  --ss-space-32: 4rem;
+  --ss-space-40: 5rem;
+  --ss-space-48: 6rem;
+
+  /* ------------------------------------------------------------------
+     SHADOWS
+     ------------------------------------------------------------------ */
+  --ss-shadow-sm:    0px 5px 15px rgba(0, 0, 0, 0.04);           /* twigs default */
+  --ss-shadow-md:    0px 8px 24px rgba(0, 0, 0, 0.08);
+  --ss-shadow-lg:    0px 16px 40px rgba(0, 0, 0, 0.10);
+  --ss-shadow-focus: 0 0 0 2px #fff, 0 0 0 4px var(--ss-primary-200), 0 1px 2px rgba(0,0,0,0.05);
+
+  /* ------------------------------------------------------------------
+     TRANSITIONS
+     ------------------------------------------------------------------ */
+  --ss-t-fast: 0.1s;
+  --ss-t-med:  0.2s;
+  --ss-t-slow: 0.3s;
+
+  /* ------------------------------------------------------------------
+     BORDER WIDTHS
+     ------------------------------------------------------------------ */
+  --ss-bw-xs: 1px;
+  --ss-bw-sm: 2px;
+  --ss-bw-md: 3px;
+  --ss-bw-lg: 4px;
+  --ss-bw-xl: 5px;
+}
+
+/* ==========================================================================
+   ELEMENT DEFAULTS — light, non-opinionated
+   ========================================================================== */
+.ss-type,
+.ss-type * {
+  font-family: var(--ss-font-body);
+  color: var(--ss-fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.ss-h1, h1.ss-h1 {
+  font-family: var(--ss-font-heading);
+  font-size: var(--ss-fs-5xl); line-height: var(--ss-lh-4xl);
+  font-weight: var(--ss-fw-bold); letter-spacing: -0.01em;
+  color: var(--ss-fg);
+}
+.ss-h2, h2.ss-h2 {
+  font-family: var(--ss-font-heading);
+  font-size: var(--ss-fs-4xl); line-height: var(--ss-lh-3xl);
+  font-weight: var(--ss-fw-bold); letter-spacing: -0.005em;
+}
+.ss-h3, h3.ss-h3 {
+  font-family: var(--ss-font-heading);
+  font-size: var(--ss-fs-3xl); line-height: var(--ss-lh-2xl);
+  font-weight: var(--ss-fw-bold); letter-spacing: -0.02em;
+}
+.ss-h4, h4.ss-h4 {
+  font-size: var(--ss-fs-2xl); line-height: var(--ss-lh-2xl);
+  font-weight: var(--ss-fw-bold);
+}
+.ss-h5, h5.ss-h5 {
+  font-size: var(--ss-fs-xl); line-height: var(--ss-lh-xl);
+  font-weight: var(--ss-fw-bold);
+}
+.ss-h6, h6.ss-h6 {
+  font-size: var(--ss-fs-lg); line-height: var(--ss-lh-lg);
+  font-weight: var(--ss-fw-bold);
+}
+
+.ss-body-lg  { font-size: var(--ss-fs-lg); line-height: var(--ss-lh-lg); }
+.ss-body     { font-size: var(--ss-fs-md); line-height: var(--ss-lh-md); }
+.ss-body-sm  { font-size: var(--ss-fs-sm); line-height: var(--ss-lh-sm); }
+.ss-caption  { font-size: var(--ss-fs-xs); line-height: var(--ss-lh-xs); color: var(--ss-fg-muted); }
+.ss-overline { font-size: var(--ss-fs-xxs); line-height: var(--ss-lh-xs); text-transform: uppercase; letter-spacing: 0.08em; font-weight: var(--ss-fw-semibold); color: var(--ss-fg-muted); }
+.ss-code     { font-family: var(--ss-font-mono); font-size: 0.9em; background: var(--ss-bg-muted); padding: 0.1em 0.35em; border-radius: var(--ss-radius-sm); }

@@ -1,0 +1,29 @@
+html, body { margin:0; height:100%; font-family: var(--ss-font-body); background: var(--ss-neutral-50); color: var(--ss-fg); }
+*{ box-sizing: border-box; }
+#root{ height:100vh; display:flex; }
+[data-lucide]{ stroke-width:1.75; }
+
+/* utility */
+.scroll-area{ overflow:auto; }
+.scroll-area::-webkit-scrollbar { width:10px; height:10px; }
+.scroll-area::-webkit-scrollbar-thumb { background: var(--ss-neutral-200); border-radius:8px; }
+.scroll-area::-webkit-scrollbar-thumb:hover { background: var(--ss-neutral-300); }
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+.kpi-spark path { transition: d .25s; }
+
+.heatmap-cell:hover { filter: brightness(0.92); cursor:pointer; }
+
+.bubble:hover { stroke-width: 2; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.08)); }
+
+.row-hover:hover { background: var(--ss-neutral-50); }
+
+/* sentiment colors */
+.sent-calm       { background:#D7F0D7; color:#1F5E2A; }
+.sent-annoyed    { background:#FDE2B8; color:#7A4A0F; }
+.sent-frustrated { background:#FDD8CE; color:#9B2C0F; }
+.sent-furious    { background:#F4C2C2; color:#7A1F1F; }
+
+/* divider */
+.divider { height:1px; background: var(--ss-border); margin: 16px 0; }

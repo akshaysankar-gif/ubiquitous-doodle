@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  passwordHash String
+  name         String
+  role         Role          @default(VIEWER)
+  createdAt    DateTime      @default(now())
+  batches      TicketBatch[]
+}
+
+enum Role { 
+  ADMIN 
+  VIEWER 
+}
+
+model TicketBatch {
+  id             String    @id @default(cuid())
+  name           String
+  uploadedAt     DateTime  @default(now())
+  uploadedById   String
+  uploadedBy     User      @relation(fields:[uploadedById], references:[id])
+  rowCount       Int       @default(0)
+  processedCount Int       @default(0)
+  errorCount     Int       @default(0)
+  status         BatchStatus @default(PENDING)
+  tickets        Ticket[]
+}
+
+enum BatchStatus { 
+  PENDING 
+  PROCESSING 
+  DONE 
+  ERROR 
+}
+
+model Ticket {
+  id              String   @id   // Ticket ID from CSV
+  batchId         String
+  batch           TicketBatch @relation(fields:[batchId], references:[id])
+
+  // Raw fields
+  status          String
+  assignee        String
+  subject         String
+  brand           String
+  source          String
+  channel         String
+  team            String
+  issueType       String
+  moduleL1        String?
+  areaL2          String?
+  subareaL3       String?
+  createdAt       DateTime
+  createdDate     String        // YYYY-MM-DD
+  createdMonth    String        // YYYY-MM
+  hourOfDay       Int
+  dayOfWeek       Int
+  previousStatus  String?
+  messagesRaw     String
+
+  // Derived flags
+  isArchived      Boolean  @default(false)
+  isAIHandled     Boolean  @default(false)
+  isReopened      Boolean  @default(false)
+  isChat          Boolean  @default(false)
+
+  // Analysis status
+  analysisStatus  AnalysisStatus @default(PENDING)
+
+  // GPT-4o classification output
+  primaryIntent   String?
+  subIntent       String?
+  severity        String?
+  businessRisk    String?
+  productArea     String?
+  rootCauseType   String?
+  frustrationLevel String?
+  automationLevel String?
+  supportEffort   String?
+  systemicSignal  String?
+  customerAsk     String?
+
+  // Quality scores
+  scoreResolutionQuality    Float?
+  scoreCommunicationClarity Float?
+  scoreEscalationJudgment   Float?
+  scoreCategorizationAccuracy Float?
+  scoreTotal                Float?
+  scoreFlags                String?
+}
+
+enum AnalysisStatus { 
+  PENDING 
+  DONE 
+  SKIPPED 
+  ERROR 
+}
