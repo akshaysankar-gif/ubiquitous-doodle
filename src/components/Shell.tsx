@@ -5,106 +5,125 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSupport } from "@/lib/context";
 import Icon from "@/components/ui/Icon";
-import { NavId } from "@/lib/dataClient";
+import Pill from "@/components/ui/Pill";
 
-interface NavItem {
-  id: NavId;
-  label: string;
-  icon: any;
-  href: string;
-  category?: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: "dashboard", label: "Dashboard", icon: "LayoutDashboard", href: "/dashboard" },
-  { id: "compare", label: "Compare", icon: "ArrowLeftRight", href: "/compare" },
-  { category: "Exploration", id: "bubbles", label: "Bubbles", icon: "CircleDot", href: "/bubbles" },
-  { id: "blockers", label: "Blockers", icon: "Ban", href: "/blockers" },
-  { category: "Deep Dives", id: "intent", label: "Intent", icon: "Target", href: "/intent" },
-  { id: "product", label: "Product Area", icon: "Box", href: "/product" },
-  { id: "codes", label: "Root Cause", icon: "Hash", href: "/codes" },
-  { id: "root", label: "Root Explorer", icon: "Search", href: "/root" },
-  { category: "Customer", id: "frustration", label: "Frustration", icon: "Frown", href: "/frustration" },
-  { id: "automation", label: "Automation", icon: "Zap", href: "/automation" },
-  { id: "effort", label: "Effort", icon: "Clock", href: "/effort" },
-  { id: "signals", label: "Signals", icon: "Radio", href: "/signals" },
-  { category: "Performance", id: "aivshuman", label: "AI vs Human", icon: "Bot", href: "/ai-vs-human" },
-  { id: "coaching", label: "Coaching", icon: "UserCheck", href: "/coaching" },
-  { id: "upsell", label: "Upsell", icon: "TrendingUp", href: "/upsell" },
-  { category: "System", id: "data", label: "Data Admin", icon: "Database", href: "/data" },
-  { id: "settings", label: "Settings", icon: "Settings", href: "/settings" },
+const NAV_SECTIONS = [
+  {
+    label: 'Analyse',
+    items: [
+      { id: 'dashboard',  icon: 'LayoutDashboard', label: 'Month dashboard', href: '/dashboard' },
+      { id: 'compare',    icon: 'GitCompare',       label: 'Compare months', href: '/compare' },
+      { id: 'bubbles',    icon: 'CircleDot',        label: 'Bubble explorer', href: '/bubbles' },
+    ],
+  },
+  {
+    label: 'Metric pages',
+    items: [
+      { id: 'blockers',   icon: 'OctagonAlert',     label: 'Customer blockers', href: '/blockers' },
+      { id: 'intent',     icon: 'Tag',               label: 'Intent / Sub-intent', href: '/intent' },
+      { id: 'product',    icon: 'Package',           label: 'Product hotspots', href: '/product' },
+      { id: 'codes',      icon: 'ListTree',         label: 'Contact codes', href: '/codes' },
+      { id: 'root',       icon: 'Sprout',            label: 'Root cause', href: '/root' },
+      { id: 'frustration',icon: 'Flame',             label: 'Frustration', href: '/frustration' },
+      { id: 'automation', icon: 'Bot',               label: 'Automation potential', href: '/automation' },
+      { id: 'effort',     icon: 'Gauge',             label: 'Support effort', href: '/effort' },
+      { id: 'signals',    icon: 'Radio',             label: 'Systemic signals', href: '/signals' },
+    ],
+  },
+  {
+    label: 'Future modules',
+    items: [
+      { id: 'aivshuman', icon: 'Split',             label: 'AI vs Human', href: '/ai-vs-human', pill: { color: 'purple', text: 'Preview' } },
+      { id: 'coaching',  icon: 'GraduationCap',    label: 'Coaching', href: '/coaching', pill: { color: 'purple', text: 'Preview' } },
+      { id: 'upsell',    icon: 'Sparkles',          label: 'Upsell signals', href: '/upsell', pill: { color: 'purple', text: 'Preview' } },
+    ],
+  },
+  {
+    label: 'Admin',
+    items: [
+      { id: 'data',     icon: 'Database',          label: 'Data & schema', href: '/data' },
+      { id: 'settings', icon: 'Settings',          label: 'Settings', href: '/settings' },
+    ],
+  },
 ];
 
-const Sidebar = () => {
+const SidebarItem = ({ item, collapsed }: { item: any; collapsed: boolean }) => {
   const pathname = usePathname();
-  const { tweaks, updateTweaks } = useSupport();
-  const collapsed = tweaks.sidebarCollapsed;
-
+  const isActive = pathname === item.href;
+  
   return (
-    <aside
-      style={{
-        width: collapsed ? "64px" : "232px",
-        transition: "width 0.2s ease",
-        backgroundColor: "var(--sidebar-bg)",
-        borderRight: "1px solid var(--border-color)",
-      }}
-      className="flex h-screen flex-col overflow-hidden"
+    <Link
+      href={item.href}
+      title={collapsed ? item.label : undefined}
+      className={`flex items-center gap-[10px] w-full transition-all duration-150 rounded-lg ${
+        collapsed ? 'justify-center py-2' : 'px-[10px] py-[7px] justify-start'
+      } ${
+        isActive 
+          ? 'bg-[var(--ss-primary-50)] text-[var(--ss-primary-700)] font-semibold' 
+          : 'text-[var(--ss-secondary-700)] font-medium hover:bg-black/5'
+      }`}
+      style={{ fontSize: '12.5px' }}
     >
-      <div className="flex h-[60px] items-center px-4">
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#00828D] text-white"
-          style={{ flexShrink: 0 }}
-        >
-          <Icon name="Activity" size={18} />
+      <Icon name={item.icon} size={16} />
+      {!collapsed && (
+        <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
+          {item.label}
+        </span>
+      )}
+      {!collapsed && item.pill && (
+        <Pill color={item.pill.color as any} size="sm">{item.pill.text}</Pill>
+      )}
+    </Link>
+  );
+};
+
+const AppSidebar = ({ collapsed }: { collapsed: boolean }) => {
+  return (
+    <aside 
+      className="flex flex-col h-full bg-white border-r border-[var(--ss-border)] transition-[width] duration-200"
+      style={{ width: collapsed ? '56px' : '232px', flexShrink: 0 }}
+    >
+      <div className={`flex items-center gap-2 ${collapsed ? 'justify-center py-4 px-0' : 'px-[18px] py-4'}`}>
+        <div className="w-7 h-7 bg-[var(--ss-primary-500)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
+          <Icon name="Activity" size={16} />
         </div>
         {!collapsed && (
-          <span className="ml-3 font-bold text-[#1E293B]">Ticket Intelligence</span>
+          <div className="leading-[1.1]">
+            <div className="text-[13px] font-bold text-[var(--ss-fg)] tracking-[-0.01em]">Ticket Explorer</div>
+            <div className="text-[10px] text-[var(--ss-fg-muted)]">Support · Post-mortem</div>
+          </div>
         )}
       </div>
 
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-2">
-        {NAV_ITEMS.map((item, idx) => {
-          const isActive = pathname.startsWith(item.href);
-          const showCategory = item.category && !collapsed;
+      <div className="flex-1 overflow-y-auto scroll-area px-[6px] py-2 space-y-4">
+        {NAV_SECTIONS.map((sec) => (
+          <div key={sec.label} className="space-y-1">
+            {!collapsed && (sec.label !== 'Analyse') && (
+              <div className="text-[9px] font-bold tracking-[0.08em] uppercase text-[var(--ss-fg-muted)] px-[10px] py-[4px]">
+                {sec.label}
+              </div>
+            )}
+            {collapsed && (sec.label !== 'Analyse') && (
+              <div className="h-px bg-[var(--ss-border)] mx-1.5 my-2" />
+            )}
+            <nav className="flex flex-col gap-[2px]">
+              {sec.items.map((it) => (
+                <SidebarItem key={it.id} item={it} collapsed={collapsed} />
+              ))}
+            </nav>
+          </div>
+        ))}
+      </div>
 
-          return (
-            <React.Fragment key={item.id}>
-              {showCategory && (
-                <div className="mb-1 mt-4 px-3 text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">
-                  {item.category}
-                </div>
-              )}
-              <Link
-                href={item.href}
-                className={`group flex items-center rounded-lg px-3 py-2 transition-all ${
-                  isActive
-                    ? "bg-[#F1F5F9] text-[#00828D]"
-                    : "text-[#64748B] hover:bg-[#F8FAFB] hover:text-[#1E293B]"
-                }`}
-              >
-                <Icon
-                  name={item.icon}
-                  size={18}
-                  className={isActive ? "text-[#00828D]" : "text-[#94A3B8] group-hover:text-[#64748B]"}
-                />
-                {!collapsed && <span className="ml-3 text-sm font-medium">{item.label}</span>}
-              </Link>
-            </React.Fragment>
-          );
-        })}
-      </nav>
-
-      <div className="border-t border-[#E2E8F0] p-4">
-        <div className="flex items-center">
-          <div className="h-8 w-8 rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#1E293B] font-bold text-xs">
-            A
+      <div className="border-t border-[var(--ss-border)] mt-2 p-[10px]">
+        <div className={`flex items-center gap-2 ${collapsed ? 'justify-center' : 'px-1.5'}`}>
+          <div className="w-8 h-8 rounded-full bg-[var(--ss-secondary-100)] flex items-center justify-center text-[var(--ss-fg)] font-bold text-xs">
+            AS
           </div>
           {!collapsed && (
-            <div className="ml-3 flex-1 overflow-hidden">
-              <div className="truncate text-sm font-bold text-[#1E293B]">Admin User</div>
-              <div className="text-xs font-medium text-[#64748B]">
-                Authentication Disabled
-              </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[12px] font-semibold text-[var(--ss-fg)] truncate">Akshay S.</div>
+              <div className="text-[10px] text-[var(--ss-fg-muted)] truncate">Product Owner</div>
             </div>
           )}
         </div>
@@ -113,31 +132,51 @@ const Sidebar = () => {
   );
 };
 
-const Topbar = () => {
-  const { month, setMonth, tweaks, updateTweaks } = useSupport();
+const AppTopbar = ({ onToggleSidebar, collapsed }: { onToggleSidebar: () => void; collapsed: boolean }) => {
+  const { month, setMonth } = useSupport();
+  const pathname = usePathname();
   
+  // Find current page label
+  let title = "Dashboard";
+  NAV_SECTIONS.forEach(sec => {
+    const it = sec.items.find(i => i.href === pathname);
+    if (it) title = it.label;
+  });
+
   return (
-    <header
-      className="flex h-[60px] items-center justify-between border-b border-[#E2E8F0] bg-white px-6"
-    >
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => updateTweaks({ sidebarCollapsed: !tweaks.sidebarCollapsed })}
-          className="text-[#64748B] hover:text-[#1E293B]"
-        >
-          <Icon name={tweaks.sidebarCollapsed ? "PanelLeftOpen" : "PanelLeftClose"} size={20} />
-        </button>
+    <header className="h-[60px] border-b border-[var(--ss-border)] bg-white flex items-center px-[22px] gap-3 flex-shrink-0">
+      <button 
+        onClick={onToggleSidebar}
+        className="p-1.5 rounded-md hover:bg-black/5 text-[var(--ss-secondary-700)] transition-colors"
+      >
+        <Icon name={collapsed ? "PanelLeftOpen" : "PanelLeft"} size={18} />
+      </button>
+      
+      <div className="flex-1 min-w-0">
+        <div className="text-[15.5px] font-bold text-[var(--ss-fg)] tracking-[-0.01em]">{title}</div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* Month picker placeholder - will be dynamic later */}
-        <select
-          value={month}
+      {/* Product Filter */}
+      <div className="w-40 h-8 px-2 border border-[var(--ss-border)] rounded-lg bg-white flex items-center">
+        <select className="w-full text-xs font-semibold text-[var(--ss-fg)] outline-none bg-transparent cursor-pointer">
+          <option>All products</option>
+          <option>SurveySparrow</option>
+          <option>ThriveSparrow</option>
+          <option>SparrowDesk</option>
+        </select>
+      </div>
+
+      {/* Month Picker */}
+      <div className="flex items-center gap-1.5 px-2 h-8 border border-[var(--ss-border)] rounded-lg bg-white">
+        <Icon name="Calendar" size={14} className="text-[var(--ss-fg-muted)]" />
+        <select 
+          value={month} 
           onChange={(e) => setMonth(e.target.value)}
-          className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFB] px-3 py-1.5 text-sm font-medium text-[#1E293B] outline-none"
+          className="text-xs font-semibold text-[var(--ss-fg)] outline-none bg-transparent cursor-pointer"
         >
-          <option value="">All Months</option>
-          {/* This should be populated from batches API */}
+          <option value="2024-05">May 2024</option>
+          <option value="2024-04">Apr 2024</option>
+          <option value="2024-03">Mar 2024</option>
         </select>
       </div>
     </header>
@@ -145,12 +184,19 @@ const Topbar = () => {
 };
 
 export const Shell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { tweaks, updateTweaks } = useSupport();
+  const collapsed = tweaks.sidebarCollapsed;
+
+  const toggleSidebar = () => {
+    updateTweaks({ sidebarCollapsed: !collapsed });
+  };
+
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-y-auto p-6 bg-[#F8FAFB]">
+    <div className="flex h-screen overflow-hidden ss-type">
+      <AppSidebar collapsed={collapsed} />
+      <div className="flex flex-1 flex-col overflow-hidden bg-[var(--ss-bg-subtle)]">
+        <AppTopbar onToggleSidebar={toggleSidebar} collapsed={collapsed} />
+        <main className="flex-1 overflow-y-auto p-6">
           {children}
         </main>
       </div>
