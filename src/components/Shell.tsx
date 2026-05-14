@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useSupport } from "@/lib/context";
 import Icon from "@/components/ui/Icon";
 import { NavId } from "@/lib/dataClient";
@@ -39,7 +38,6 @@ const NAV_ITEMS: NavItem[] = [
 const Sidebar = () => {
   const pathname = usePathname();
   const { tweaks, updateTweaks } = useSupport();
-  const { data: session } = useSession();
   const collapsed = tweaks.sidebarCollapsed;
 
   return (
@@ -99,17 +97,14 @@ const Sidebar = () => {
       <div className="border-t border-[#E2E8F0] p-4">
         <div className="flex items-center">
           <div className="h-8 w-8 rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#1E293B] font-bold text-xs">
-            {session?.user?.name?.[0] || "U"}
+            A
           </div>
           {!collapsed && (
             <div className="ml-3 flex-1 overflow-hidden">
-              <div className="truncate text-sm font-bold text-[#1E293B]">{session?.user?.name}</div>
-              <button
-                onClick={() => signOut()}
-                className="text-xs font-medium text-[#EF4444] hover:underline"
-              >
-                Sign out
-              </button>
+              <div className="truncate text-sm font-bold text-[#1E293B]">Admin User</div>
+              <div className="text-xs font-medium text-[#64748B]">
+                Authentication Disabled
+              </div>
             </div>
           )}
         </div>

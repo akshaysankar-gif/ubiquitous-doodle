@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { parseTicket, RawTicketData } from "@/lib/parser";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession();
-  if (!session || !(session.user as any).id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Use the first available user since authentication is disabled
+  const defaultUser = await prisma.user.findFirst();
+  if (!defaultUser) {
+    return NextResponse.json({ error: "No users found in database" }, { status: 500 });
   }
 
-  const userId = (session.user as any).id;
+  const userId = defaultUser.id;
 
   try {
     const formData = await req.formData();
