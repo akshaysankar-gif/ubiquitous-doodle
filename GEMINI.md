@@ -36,3 +36,6 @@ The database includes models for:
 ## Analysis dimensions
 - **Classification:** Primary intent, sub-intent, severity, business risk, product area, root cause, frustration level, automation level, effort, systemic signal, customer ask.
 - **Quality Scoring:** Resolution quality, communication clarity, escalation judgment, categorization accuracy.
+
+## Development Workflow
+- **Validation:** For every code edit, run a codecheck and bugfix routine using relevant sub-agents (e.g., `generalist` or `codebase_investigator`) to ensure stability and correctness.
