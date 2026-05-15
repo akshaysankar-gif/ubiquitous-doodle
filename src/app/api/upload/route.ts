@@ -6,9 +6,16 @@ import { parseTicket, RawTicketData } from "@/lib/parser";
 
 export async function POST(req: NextRequest) {
   // Use the first available user since authentication is disabled
-  const defaultUser = await prisma.user.findFirst();
+  let defaultUser = await prisma.user.findFirst();
   if (!defaultUser) {
-    return NextResponse.json({ error: "No users found in database" }, { status: 500 });
+    defaultUser = await prisma.user.create({
+      data: {
+        email: "akshay.sankar@surveysparrow.com",
+        passwordHash: "none", // Placeholder, since it's just for upload relation
+        name: "Admin",
+        role: "ADMIN",
+      }
+    });
   }
 
   const userId = defaultUser.id;
@@ -42,8 +49,24 @@ export async function POST(req: NextRequest) {
     let skippedCount = 0;
     let eligibleCount = 0;
 
-    for (const row of rawData) {
-      const parsed = parseTicket(row as RawTicketData);
+    for (const rawRow of rawData) {
+      const mappedRow: RawTicketData = {
+        id: String(rawRow["Ticket ID"] || rawRow.id || ""),
+        status: String(rawRow["Status"] || rawRow.status || ""),
+        assignee: String(rawRow["Assignee"] || rawRow.assignee || ""),
+        subject: String(rawRow["Subject"] || rawRow.subject || ""),
+        brand: String(rawRow["Brand"] || rawRow.brand || ""),
+        source: String(rawRow["Source"] || rawRow.source || ""),
+        channel: String(rawRow["Channel"] || rawRow.channel || ""),
+        team: String(rawRow["Team"] || rawRow.team || ""),
+        issueType: String(rawRow["Issue type"] || rawRow["Issue Type"] || rawRow.issueType || ""),
+        category: String(rawRow["Category"] || rawRow.category || ""),
+        createdAt: String(rawRow["Created at"] || rawRow["CreatedAt"] || rawRow.createdAt || new Date().toISOString()),
+        previousStatus: String(rawRow["Previous status"] || rawRow["Previous Status"] || rawRow.previousStatus || ""),
+        messagesRaw: String(rawRow["Messages"] || rawRow["Message"] || rawRow.messagesRaw || ""),
+      };
+
+      const parsed = parseTicket(mappedRow);
       if (!parsed) {
         skippedCount++;
         continue;
