@@ -18,8 +18,8 @@ export interface RawTicketData {
 
 export function parseTicket(raw: RawTicketData) {
   // Brand splitting & skip brands
-  let brand = raw.brand;
-  let source = raw.source;
+  let brand = raw.brand || "Other";
+  let source = raw.source || "Other";
 
   if (brand === "SurveySparrow" || brand === "SurveySparrow Website") {
     brand = "SurveySparrow";
@@ -42,11 +42,8 @@ export function parseTicket(raw: RawTicketData) {
     return null;
   }
 
-  // Team stripping
-  const team = raw.team.replace(/'/g, "");
-
   // Channel mapping
-  const channel = raw.channel === "Mail" ? "Ticket" : raw.channel;
+  const channel = raw.channel === "Mail" ? "Ticket" : (raw.channel || "Unknown");
 
   // Archive logic
   const isArchived = raw.status === "Archived" || raw.previousStatus === "Archived";
@@ -55,15 +52,24 @@ export function parseTicket(raw: RawTicketData) {
   let moduleL1 = null;
   let areaL2 = null;
   let subareaL3 = null;
-  if (raw.category) {
+  if (raw.category && raw.category !== "undefined" && raw.category !== "null") {
     const parts = raw.category.split("::");
     moduleL1 = parts[0]?.trim() || null;
     areaL2 = parts[1]?.trim() || null;
     subareaL3 = parts[2]?.trim() || null;
   }
 
-  // Date parsing
-  const createdAt = new Date(raw.createdAt);
+  // Date parsing with safety
+  let createdAt: Date;
+  try {
+    createdAt = new Date(raw.createdAt);
+    if (isNaN(createdAt.getTime())) {
+      createdAt = new Date();
+    }
+  } catch (e) {
+    createdAt = new Date();
+  }
+
   const createdDate = createdAt.toISOString().split("T")[0];
   const createdMonth = createdDate.substring(0, 7);
   const hourOfDay = createdAt.getUTCHours();
@@ -71,23 +77,26 @@ export function parseTicket(raw: RawTicketData) {
 
   // Flags
   const isAIHandled = raw.assignee === AI_AGENT_ASSIGNEE;
-  const isChat = channel.toLowerCase().includes("chat");
+  const channelLower = channel.toLowerCase();
+  const isChat = channelLower.includes("chat") || channelLower.includes("messaging");
   const isReopened = (raw.previousStatus === "Resolved" || raw.previousStatus === "Closed") && raw.status === "Open";
 
   // Analysis eligibility
-  const isEligible = team.includes(ELIGIBLE_TEAM) && !isArchived && raw.messagesRaw.trim().length > 0;
+  const team = (raw.team || "").replace(/'/g, "");
+  const messagesRaw = raw.messagesRaw || "";
+  const isEligible = team.includes(ELIGIBLE_TEAM) && !isArchived && messagesRaw.trim().length > 0;
   const analysisStatus = isEligible ? "PENDING" : "SKIPPED";
 
   return {
     id: raw.id,
-    status: raw.status,
-    assignee: raw.assignee,
-    subject: raw.subject,
+    status: raw.status || "Unknown",
+    assignee: raw.assignee || "Unassigned",
+    subject: raw.subject || "(No Subject)",
     brand,
     source,
     channel,
     team,
-    issueType: raw.issueType,
+    issueType: raw.issueType || "Other",
     moduleL1,
     areaL2,
     subareaL3,
@@ -97,7 +106,7 @@ export function parseTicket(raw: RawTicketData) {
     hourOfDay,
     dayOfWeek,
     previousStatus: raw.previousStatus || null,
-    messagesRaw: raw.messagesRaw,
+    messagesRaw: messagesRaw,
     isArchived,
     isAIHandled,
     isReopened,

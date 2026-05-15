@@ -67,9 +67,10 @@ export default function DataAdmin() {
       await dataClient.uploadFile(formData);
       if (fileInputRef.current) fileInputRef.current.value = "";
       alert("Upload successful!");
-    } catch (error) {
-      console.error("Upload failed", error);
-      alert("Upload failed.");
+    } catch (error: any) {
+      console.error("Upload failed details:", error.info || error);
+      const msg = error.info?.error || error.info?.text || error.message || "Unknown error";
+      alert(`Upload failed: ${msg}`);
     } finally {
       setIsUploading(false);
     }

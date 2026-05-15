@@ -25,46 +25,79 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File;
     const batchName = formData.get("batchName") as string;
 
+    console.log(`Upload request received: file=${file?.name}, size=${file?.size}, batchName=${batchName}`);
+
     if (!file || !batchName) {
+      console.error("Missing file or batchName");
       return NextResponse.json({ error: "Missing file or batchName" }, { status: 400 });
     }
 
     const buffer = await file.arrayBuffer();
     let rawData: any[] = [];
+    const fileName = file.name.toLowerCase();
 
-    if (file.name.endsWith(".csv")) {
+    if (fileName.endsWith(".csv")) {
       const text = new TextDecoder().decode(buffer);
       const result = Papa.parse(text, { header: true, skipEmptyLines: true });
       rawData = result.data;
-    } else if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
+    } else if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
       const workbook = XLSX.read(buffer, { type: "array" });
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
       rawData = XLSX.utils.sheet_to_json(sheet);
     } else {
-      return NextResponse.json({ error: "Unsupported file format" }, { status: 400 });
+      console.error(`Unsupported format: ${fileName}`);
+      return NextResponse.json({ error: "Unsupported file format. Please use .csv, .xlsx, or .xls" }, { status: 400 });
+    }
+
+    console.log(`Parsed rawData length: ${rawData.length}`);
+    if (rawData.length > 0) {
+      console.log("First raw row keys:", Object.keys(rawData[0]));
+    }
+
+    if (!rawData || rawData.length === 0) {
+      console.error("Empty rawData");
+      return NextResponse.json({ error: "The uploaded file is empty or could not be parsed." }, { status: 400 });
     }
 
     const ticketsToCreate: any[] = [];
     let skippedCount = 0;
     let eligibleCount = 0;
 
+    // Helper to find value in row with case-insensitive key
+    const getVal = (row: any, ...keys: string[]) => {
+      const rowKeys = Object.keys(row);
+      for (const key of keys) {
+        // Direct match
+        if (row[key] !== undefined) return row[key];
+        // Case-insensitive match
+        const foundKey = rowKeys.find(k => k.toLowerCase() === key.toLowerCase());
+        if (foundKey) return row[foundKey];
+      }
+      return "";
+    };
+
     for (const rawRow of rawData) {
       const mappedRow: RawTicketData = {
-        id: String(rawRow["Ticket ID"] || rawRow.id || ""),
-        status: String(rawRow["Status"] || rawRow.status || ""),
-        assignee: String(rawRow["Assignee"] || rawRow.assignee || ""),
-        subject: String(rawRow["Subject"] || rawRow.subject || ""),
-        brand: String(rawRow["Brand"] || rawRow.brand || ""),
-        source: String(rawRow["Source"] || rawRow.source || ""),
-        channel: String(rawRow["Channel"] || rawRow.channel || ""),
-        team: String(rawRow["Team"] || rawRow.team || ""),
-        issueType: String(rawRow["Issue type"] || rawRow["Issue Type"] || rawRow.issueType || ""),
-        category: String(rawRow["Category"] || rawRow.category || ""),
-        createdAt: String(rawRow["Created at"] || rawRow["CreatedAt"] || rawRow.createdAt || new Date().toISOString()),
-        previousStatus: String(rawRow["Previous status"] || rawRow["Previous Status"] || rawRow.previousStatus || ""),
-        messagesRaw: String(rawRow["Messages"] || rawRow["Message"] || rawRow.messagesRaw || ""),
+        id: String(getVal(rawRow, "Ticket ID", "id", "ticket_id")),
+        status: String(getVal(rawRow, "Status", "status")),
+        assignee: String(getVal(rawRow, "Assignee", "assignee")),
+        subject: String(getVal(rawRow, "Subject", "subject")),
+        brand: String(getVal(rawRow, "Brand", "brand")),
+        source: String(getVal(rawRow, "Source", "source")),
+        channel: String(getVal(rawRow, "Channel", "channel")),
+        team: String(getVal(rawRow, "Team", "team")),
+        issueType: String(getVal(rawRow, "Issue type", "Issue Type", "issue_type", "issueType")),
+        category: String(getVal(rawRow, "Category", "category")),
+        createdAt: String(getVal(rawRow, "Created at", "CreatedAt", "created_at", "createdAt") || new Date().toISOString()),
+        previousStatus: String(getVal(rawRow, "Previous status", "Previous Status", "previous_status", "previousStatus")),
+        messagesRaw: String(getVal(rawRow, "Messages", "Message", "messages", "messages_raw")),
       };
+
+      if (!mappedRow.id) {
+        skippedCount++;
+        continue;
+      }
 
       const parsed = parseTicket(mappedRow);
       if (!parsed) {
@@ -79,6 +112,10 @@ export async function POST(req: NextRequest) {
       ticketsToCreate.push(parsed);
     }
 
+    if (ticketsToCreate.length === 0) {
+      return NextResponse.json({ error: "No valid tickets found in the file. Check headers and brands." }, { status: 400 });
+    }
+
     const batch = await prisma.$transaction(async (tx) => {
       const b = await tx.ticketBatch.create({
         data: {
@@ -89,15 +126,22 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      await tx.ticket.createMany({
-        data: ticketsToCreate.map((t) => ({
-          ...t,
-          batchId: b.id,
-        })),
-        skipDuplicates: true,
-      });
+      // Chunk the createMany to avoid parameter limits
+      const chunkSize = 100;
+      for (let i = 0; i < ticketsToCreate.length; i += chunkSize) {
+        const chunk = ticketsToCreate.slice(i, i + chunkSize);
+        await tx.ticket.createMany({
+          data: chunk.map((t) => ({
+            ...t,
+            batchId: b.id,
+          })),
+          skipDuplicates: true,
+        });
+      }
 
       return b;
+    }, {
+      timeout: 30000, // 30 seconds for large batches
     });
 
     return NextResponse.json({
