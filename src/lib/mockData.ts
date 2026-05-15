@@ -243,11 +243,11 @@ const TREND_BIAS: any = {
 
 const moduleList = Object.keys(CATEGORY_TREE);
 
-export const generateTickets = () => {
+export const generateTickets = (): any[] => {
   return [];
 };
 
-const allTickets = generateTickets();
+const allTickets: any[] = generateTickets();
 
 function aggregateMonth(monthKey: string, filterFn?: any) {
   const ms = allTickets.filter(t => t.month === monthKey && (!filterFn || filterFn(t)));

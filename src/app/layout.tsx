@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Providers } from "@/components/Providers";
-import { SupportProvider } from "@/lib/context";
-import { Shell } from "@/components/Shell";
 import "./globals.css";
-
-import { TicketDrawer } from "@/components/TicketDrawer";
 
 export const metadata: Metadata = {
   title: "Ticket Intelligence",
@@ -27,12 +23,9 @@ export default function RootLayout({
         overflow: 'hidden'
       }}>
         <Providers>
-          <SupportProvider>
-            <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-              {children}
-            </div>
-            <TicketDrawer />
-          </SupportProvider>
+          <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

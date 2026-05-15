@@ -306,24 +306,22 @@ const RootCauseBreakdown = ({ monthAgg, prevAgg }: any) => {
 
   const R = 56, C = 60, stroke = 14;
   const circ = 2 * Math.PI * R;
-  let offset = 0;
   
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
       <svg width={C * 2} height={C * 2} viewBox={`0 0 ${C * 2} ${C * 2}`}>
         <circle cx={C} cy={C} r={R} fill="none" stroke="var(--ss-neutral-100)" strokeWidth={stroke} />
-        {sorted.map(([fam, v]: any) => {
+        {sorted.map(([fam, v]: any, idx) => {
           const frac = v / total;
-          const seg = (
+          const currentOffset = sorted.slice(0, idx).reduce((acc, [, val]: any) => acc + (val / total), 0);
+          return (
             <circle key={fam}
               cx={C} cy={C} r={R} fill="none"
               stroke={palette[fam] || '#94896B'} strokeWidth={stroke}
               strokeDasharray={`${frac * circ} ${circ}`}
-              strokeDashoffset={-offset * circ}
+              strokeDashoffset={-currentOffset * circ}
               transform={`rotate(-90 ${C} ${C})`} />
           );
-          offset += frac;
-          return seg;
         })}
         <text x={C} y={C - 2} textAnchor="middle" fontSize="11" fill="var(--ss-fg-muted)" fontFamily="DM Sans">tickets</text>
         <text x={C} y={C + 14} textAnchor="middle" fontSize="18" fontWeight="700" fill="var(--ss-fg)" fontFamily="DM Sans" className="tabular">{total.toLocaleString()}</text>
