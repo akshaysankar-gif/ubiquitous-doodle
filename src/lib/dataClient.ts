@@ -69,7 +69,11 @@ async function fetcher<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options);
   if (!res.ok) {
     const error = new Error("An error occurred while fetching the data.");
-    (error as any).info = await res.json();
+    try {
+      (error as any).info = await res.json();
+    } catch (e) {
+      (error as any).info = { text: await res.text() };
+    }
     (error as any).status = res.status;
     throw error;
   }

@@ -5,22 +5,22 @@ import * as XLSX from "xlsx";
 import { parseTicket, RawTicketData } from "@/lib/parser";
 
 export async function POST(req: NextRequest) {
-  // Use the first available user since authentication is disabled
-  let defaultUser = await prisma.user.findFirst();
-  if (!defaultUser) {
-    defaultUser = await prisma.user.create({
-      data: {
-        email: "akshay.sankar@surveysparrow.com",
-        passwordHash: "none", // Placeholder, since it's just for upload relation
-        name: "Admin",
-        role: "ADMIN",
-      }
-    });
-  }
-
-  const userId = defaultUser.id;
-
   try {
+    // Use the first available user since authentication is disabled
+    let defaultUser = await prisma.user.findFirst();
+    if (!defaultUser) {
+      defaultUser = await prisma.user.create({
+        data: {
+          email: "akshay.sankar@surveysparrow.com",
+          passwordHash: "none", // Placeholder, since it's just for upload relation
+          name: "Admin",
+          role: "ADMIN",
+        }
+      });
+    }
+
+    const userId = defaultUser.id;
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const batchName = formData.get("batchName") as string;
